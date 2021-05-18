@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./website/db_dump.sql:/data/application/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: subbasichaoida
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: subbasichaoida
+  web:
+    depends_on:
+      - db
+    build: website/
+    volumes:
+      - ./website:/var/www/html
+    ports:
+      - "80:80"
+  attacker:
+    build: attacker/
+    tty: true
